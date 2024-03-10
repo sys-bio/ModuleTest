@@ -1,0 +1,117 @@
+
+// --------------------------------------------------------------------
+
+// Created by libAntimony v2.8.1
+model EGFR_combined()
+
+// Compartments:
+compartment cell, extra, intra;
+
+// --------------------------------------------------------------------
+
+//Species
+
+// EGFR
+species Lig in extra
+species Egfr in cell
+species iEgfr in intra
+species Egfr_Lig in cell
+species iEgfr_Lig in intra
+species pEgfr_Lig in cell
+species ipEgfr_Lig in intra
+species aRtot in cell
+
+// --------------------------------------------------------------------
+
+// Reactions:
+
+
+// EGFR
+
+// New_Receptors
+J1: => Egfr; Vr;
+// Receptor_turnover
+J2: Egfr => iEgfr; kt * Egfr;
+// Receptor_degrad
+J3: iEgfr => ; kx * iEgfr;
+// Ligand_binding
+// J4: Lig + Egfr -> Egfr_Lig; kf * Egfr * Lig - kr * Egfr_Lig;
+J4: Egfr -> Egfr_Lig; kf * Egfr * Lig - kr * Egfr_Lig;
+// Receptor_ligand_endo
+J5: Egfr_Lig => iEgfr_Lig; ke * Egfr_Lig;
+// Receptor_complex_degrad
+J6: iEgfr_Lig => ; kh * iEgfr_Lig;
+// Receptor_phospho
+J7: Egfr_Lig -> pEgfr_Lig; kp * Egfr_Lig - k_p * pEgfr_Lig;
+// Receptor_phospho_endo
+J8: pEgfr_Lig => ipEgfr_Lig ; ke * pEgfr_Lig;
+// Receptor_phosphocomplex_degrad
+J9: ipEgfr_Lig => ; kh * ipEgfr_Lig;
+
+
+// --------------------------------------------------------------------
+
+// Initial Values:
+
+
+// all species has nM units
+
+var Lig = 0.165;
+Lig has nM;
+Egfr = 135;
+iEgfr = 73;
+Egfr_Lig = 0.12;
+iEgfr_Lig = 0.06;
+
+pEgfr_Lig = .8;
+ipEgfr_Lig = .4;
+
+// pEgfr_Lig = .0;
+// ipEgfr_Lig = .0;
+
+aRtot := pEgfr_Lig + ipEgfr_Lig
+
+
+// --------------------------------------------------------------------
+
+// Compartment initializations:
+
+cell = 1;
+extra = 5000;
+intra = 1;
+
+// --------------------------------------------------------------------
+
+// Parameters:
+
+Vr = 0.242; // Replenishment of empty receptors
+kt = 0.0012; // Endocytosis of empty receptors
+kx = 1; // Degradation of empty receptors - set to eliminate the compartment
+ke = 0.0037; // Endocytosis of activated receptors
+kh = 0.0004; // 0.00024; // Degradation of activated receptors
+
+kf = 0.0159957255160455 // 0.0016; // Forward receptor-ligand 2nd order rate constant
+kr = 0.0068536324532293 // 0.004; // Reverse receptor-ligand rate constant
+kp = 0.0262200820876352 // 0.067; // This is the phosphorylation probability
+
+k_p = 0.13; // Dephosphorylation rate constant
+
+// --------------------------------------------------------------------
+
+// Unit definitions:
+unit substance = 1e-9 mole;
+unit time_unit = second;
+unit nM = 1e-9 mole / litre;
+unit per_nM = litre / 1e-9 mole;
+unit per_sec = 1 / second;
+unit nM_per_s = 1e-9 mole / (litre * second);
+unit per_nMs = litre / (1e-9 mole * second);
+
+// Display Names:
+substance is "nmole";
+time_unit is "s";
+per_sec is "s-1";
+nM_per_s is "nM/s";
+per_nMs is "nM-1 s-1";
+extra is "extracellular space";
+end
